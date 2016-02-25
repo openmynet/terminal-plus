@@ -151,7 +151,29 @@ class TerminalPlusView extends View
 
       return unless @ptyProcess.childProcess?
       autoRunCommand = atom.config.get('terminal-plus.core.autoRunCommand')
+      #cs add begin
+      projectFolder = atom.project.getPaths()[0]
+      editorPath = atom.workspace.getActiveTextEditor()?.getPath()
+      
+      if editorPath?
+        editorFolder = path.dirname(editorPath)
+        for directory in atom.project.getPaths()
+          if editorPath.indexOf(directory) >= 0
+            projectFolder = directory
+
+      projectFolder = undefined if projectFolder?.indexOf('atom://') >= 0
+      shellArguments = atom.config.get 'terminal-plus.core.shellArguments'
+      home = if process.platform is 'win32' then process.env.HOMEPATH else process.env.HOME
+      switch atom.config.get('terminal-plus.core.workingDirectory')
+        when 'Project' then pwd = projectFolder or editorFolder or home
+        when 'Active File' then pwd = editorFolder or projectFolder or home
+        else pwd = home
+      if shellArguments is '[win]'
+          autoRunCommand = "cd "+pwd
+      # cs add end
       @input "#{autoRunCommand}#{os.EOL}" if autoRunCommand
+      #cs add line
+      @input "cls#{os.EOL}" if process.platform is 'win32' 
 
   destroy: ->
     @subscriptions.dispose()
