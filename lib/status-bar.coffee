@@ -162,6 +162,12 @@ class StatusBar extends View
     shellArguments = atom.config.get 'terminal-plus.core.shellArguments'
     args = shellArguments.split(/\s+/g).filter (arg) -> arg
 
+    #cs add begin
+    if shellArguments is '[win]'
+        pwd = home
+        args = []
+    #cs add end
+
     statusIcon = new StatusIcon()
     terminalPlusView = new TerminalPlusView(id, pwd, statusIcon, this, shell, args)
     statusIcon.initialize(terminalPlusView)
